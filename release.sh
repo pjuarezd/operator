@@ -35,9 +35,6 @@ for file in "${files[@]}"; do
   sed -i -e "s/${CONSOLE_CURRENT_RELEASE}/${CONSOLE_RELEASE}/g" "$file"
 done
 
-echo "Update olm catalogs with $RELEASE"
-./olm.sh
-
 echo "Re-indexing helm chart releases for $RELEASE"
 ./helm-reindex.sh
 

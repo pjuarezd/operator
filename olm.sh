@@ -156,10 +156,6 @@ echo " "
 echo "clean -e files"
 rm -vf $(git status | grep -e "-e$" | awk '{print $1}')
 
-echo "Copying latest bundle to root"
-cp -R bundles/redhat-marketplace/$RELEASE/manifests manifests
-cp -R bundles/redhat-marketplace/$RELEASE/metadata metadata
-
 echo "Commit all assets"
 git add -u
 git add bundles

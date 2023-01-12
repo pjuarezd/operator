@@ -424,9 +424,7 @@ spec:
                         name: https
                     resources: {}
                     securityContext:
-                      runAsGroup: 1000
                       runAsNonRoot: true
-                      runAsUser: 1000
                     volumeMounts:
                       - mountPath: /tmp/certs
                         name: tls-certificates
@@ -491,9 +489,7 @@ spec:
                         ephemeral-storage: 500Mi
                         memory: 256Mi
                     securityContext:
-                      runAsGroup: 1000
                       runAsNonRoot: true
-                      runAsUser: 1000
                 serviceAccountName: minio-operator
     strategy: deployment
   installModes:

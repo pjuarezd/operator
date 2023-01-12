@@ -104,5 +104,5 @@ generate-code:
 generate-openshift-manifests:
 	@./olm.sh
 
-release: generate-openshift-manifests
+release:
 	@./release.sh

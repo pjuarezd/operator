@@ -53,7 +53,7 @@ spec:
       serviceAccount: stsclient-sa
       containers:
         - name: sts-client
-          image: minio/operator-sts-example:tag
+          image: miniodev/operator-sts-example:minio-go
           imagePullPolicy: IfNotPresent
           env:
             - name: MINIO_ENDPOINT

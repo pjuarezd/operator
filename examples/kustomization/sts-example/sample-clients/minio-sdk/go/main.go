@@ -47,7 +47,8 @@ func main() {
 		log.Fatal("Service account JWT is empty")
 		panic(1)
 	}
-
+	// Declare a custom transport to trust custom CA's, in this case we will trust
+	// Kubernete's Internal CA or Cert Manager's CA
 	httpsTransport, err := getHttpsTransportWithCACert(kubeRootCApath)
 	if err != nil {
 		log.Fatalf("Error Creating https transport: %s", err)

@@ -64,8 +64,46 @@ spec:
 
 ```
 
-To install the sample application
+To install the sample application, which uses the Go SDK, run:
 
 ```shell
 kubectl apply -k examples/kustomization/sts-example/
+```
+
+To use a specfic SDK, use any of the following:
+
+### Go
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/minio-sdk/go
+```
+
+### Java
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/minio-sdk/java
+```
+
+### Python
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/minio-sdk/python
+```
+
+### Python: AWS Boto3 SDK
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/aws-sdk/python
+```
+
+### Javascript
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/minio-sdk/javascript
+```
+
+### .NET
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/sample-clients/minio-sdk/dotnet
 ```

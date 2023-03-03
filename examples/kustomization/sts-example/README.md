@@ -35,10 +35,10 @@ kubectl apply -k examples/kustomization/sts-example/tenant-certmanager
 
 # 1. Create a bucket and a policy (Optional)
 
-We will setup some sample buckets to access from our sample application
+We will set up some sample buckets to access from our sample application
 
 ```shell
-kubectl apply -k examples/kustomization/sample-data
+kubectl apply -k examples/kustomization/sts-example/sample-data
 ```
 
 # 2. Install sample application

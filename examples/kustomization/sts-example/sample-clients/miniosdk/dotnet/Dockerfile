@@ -11,7 +11,7 @@ RUN curl https://packages.microsoft.com/config/ubuntu/22.10/packages-microsoft-p
 
 RUN mkdir app
 WORKDIR /app
-COPY obj/ /app
+COPY obj /app
 COPY dotnet.csproj /app
 COPY Program.cs /app
 RUN dotnet publish

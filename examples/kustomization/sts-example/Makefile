@@ -9,8 +9,6 @@ miniosdkdotnet:
 
 miniosdkgo:
 	@cd miniosdk/go/ && \
-	  go install && GOOS=linux GOARCH=amd64 go build -o client
-	@cd miniosdk/go/ && \
 		docker buildx build -q --platform=linux/amd64 -t minio/operator-sts-example:miniosdk-go .
 
 miniosdkjava:

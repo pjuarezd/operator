@@ -1,4 +1,4 @@
-module min.io/operator-sts-example
+module github.com/minio/operator/sts/example/go
 
 go 1.20
 

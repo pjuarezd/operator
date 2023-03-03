@@ -15,3 +15,57 @@ the `minio-operator` deployment.
 
 The STS functionality works only with TLS configured. We can request certificates automatically, but additional you can
 user `cert-manager` or bring your own certificates.
+
+# Installation
+
+To install the example, you need an existing tenant, optionally, you can install the `tenant-lite` example, or
+the `tenant-certmanager` example
+
+# 0. Install Tenant (Optional)
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/tenant
+```
+
+For an example with Cert Manager
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/tenant-certmanager
+```
+
+# 1. Create a bucket and a policy (Optional)
+
+We will setup some sample buckets to access from our sample application
+
+```shell
+kubectl apply -k examples/kustomization/sample-data
+```
+
+# 2. Install sample application
+
+The sample application will install to `sts-client` namespace and grant access to the job called `sts-example-job` to
+access `tenant` with the MinIO Policy called `test-bucket-rw` that we created on the previous step on
+namespace `minio-tenant-1` by installing a `PolicyBinding` on the `minio-tenant-1` namespace.
+
+Example policy binding
+
+```yaml
+apiVersion: sts.min.io/v1beta1
+kind: PolicyBinding
+metadata:
+  name: binding-1
+  namespace: minio-tenant-1
+spec:
+  application:
+    namespace: sts-client
+    serviceaccount: stsclient-sa
+  policies:
+    - test-bucket-rw
+
+```
+
+To install the sample application
+
+```shell
+kubectl apply -k examples/kustomization/sts-example/
+```

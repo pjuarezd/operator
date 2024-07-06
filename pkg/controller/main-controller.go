@@ -480,30 +480,6 @@ func leaderRun(ctx context.Context, c *Controller, threadiness int, stopCh <-cha
 	go c.recurrentTenantStatusMonitor(stopCh)
 	go c.StartPodInformer(stopCh)
 
-	// 1) we need to make sure we have console TLS certificates (if enabled)
-	if isOperatorConsoleTLS() {
-		klog.Info("Waiting for Console TLS")
-		go func() {
-			if utils.GetOperatorRuntime() == common.OperatorRuntimeOpenshift {
-				klog.Infof("Console TLS is enabled, skipping TLS certificate generation on Openshift deployment")
-			} else {
-				klog.Infof("Console TLS is enabled, starting console TLS certificate setup")
-
-				err := c.recreateOperatorConsoleCertsIfRequired(ctx)
-				if err != nil {
-					panic(err)
-				}
-				klog.Infof("Restarting Console pods")
-				err = c.rolloutRestartDeployment(getConsoleDeploymentName())
-				if err != nil {
-					klog.Errorf("Console deployment didn't restart: %s", err)
-				}
-			}
-		}()
-	} else {
-		klog.Infof("Console TLS is not enabled")
-	}
-
 	// 2) we need to make sure we have STS API certificates (if enabled)
 	if IsSTSEnabled() {
 		go func() {
@@ -835,26 +811,6 @@ func (c *Controller) syncHandler(key string) (Result, error) {
 				// Just output the error. Will not retry.
 				runtime.HandleError(fmt.Errorf("DeletePrometheusAddlConfig '%s/%s' error:%s", namespace, tenantName, err.Error()))
 			}
-			// try to delete pvc if set ReclaimStorageLabel:true
-			pvcList := corev1.PersistentVolumeClaimList{}
-			listOpt := client.ListOptions{
-				Namespace: namespace,
-			}
-			client.MatchingLabels{
-				miniov2.TenantLabel: tenantName,
-			}.ApplyToList(&listOpt)
-			err := c.k8sClient.List(ctx, &pvcList, &listOpt)
-			if err != nil {
-				runtime.HandleError(fmt.Errorf("PersistentVolumeClaimList  '%s/%s' error:%s", namespace, tenantName, err.Error()))
-			}
-			for _, pvc := range pvcList.Items {
-				if pvc.Labels[statefulsets.ReclaimStorageLabel] == "true" {
-					err := c.k8sClient.Delete(ctx, &pvc)
-					if err != nil {
-						runtime.HandleError(fmt.Errorf("Delete PersistentVolumeClaim '%s/%s/%s' error:%s", namespace, tenantName, pvc.Name, err.Error()))
-					}
-				}
-			}
 			return WrapResult(Result{}, nil)
 		}
 		// will retry after 5sec
@@ -959,12 +915,6 @@ func (c *Controller) syncHandler(key string) (Result, error) {
 	err = c.checkMinIOSvc(ctx, tenant, nsName)
 	if err != nil {
 		klog.V(2).Infof("error consolidating minio service: %s", err.Error())
-		return WrapResult(Result{}, err)
-	}
-	// Check Console Endpoint Service
-	err = c.checkConsoleSvc(ctx, tenant, nsName)
-	if err != nil {
-		klog.V(2).Infof("error consolidating console service: %s", err.Error())
 		return WrapResult(Result{}, err)
 	}
 

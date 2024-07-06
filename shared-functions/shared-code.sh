@@ -88,7 +88,7 @@ function wait_resource_field_to_exist() {
   # Interval in seconds between checks
   INTERVAL=10
 
-  echo -e "${BLUE}Waiting for $resourcetype $fieldselector to be created (${TIMEOUT}s timeout)${NC}"
+  echo -e "${BLUE}Waiting for $resourcetype/$resourcename field '$fieldselector' to be created (${TIMEOUT}s timeout)${NC}"
   while true; do
     if kubectl get "$resourcetype" -n "$namespace" "$resourcename" -ojson | jq -e $fieldselector >/dev/null 2>&1; then
       echo -e "${CHECK}$resourcetype/$resourcename field '$fieldselector' found."

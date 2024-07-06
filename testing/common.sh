@@ -593,7 +593,6 @@ function install_operator() {
   elif [ "$1" = "certmanager" ]; then
     echo "Installing Current Operator with certmanager"
     try kubectl apply -k "${SCRIPT_DIR}/../examples/kustomization/operator-certmanager"
-    echo "key, value for pod selector in kustomize test"
     key=name
     value=minio-operator
   else
@@ -716,15 +715,13 @@ function check_tenant_status() {
     echo "No third argument provided, using default key"
   fi
 
-  wait_resource_status $1 Tenant $2 600
-
+  wait_resource_field_to_exist $1 Tenant $2 ".status" 600
   wait_for_resource $1 $value $key
-
+  wait_resource_field_to_exist $1 Tenant $2 ".status.currentState" 600
   echo "Waiting for tenant to be Initialized"
-
   condition=jsonpath='{.status.currentState}'=Initialized
   selector="metadata.name=$2"
-  try wait_for_resource_field_selector "$1" tenant $condition "$selector" 1200s
+  try wait_for_resource_field_selector "$1" tenant $condition "$selector" 600s
 
   if [ $# -ge 4 ]; then
     echo "Fourth argument provided, then get secrets from helm"
@@ -756,29 +753,25 @@ function check_tenant_status() {
   elif [ "$4" = "certmanager" ]; then
     echo "Running mc admin info pod for tenant-certmanager-ca-tls secret..."
     try kubectl apply -f  "${SCRIPT_DIR}/certmanager/mc-admin-info-pod.yaml"
-    sleep 10
-    echo "Wait to mc admin info minio/"
     try kubectl wait --for=jsonpath="{.status.phase}=Succeeded" --timeout=10m pod/admin-mc --namespace tenant-certmanager
 
     # Retrieve the logs
     kubectl logs admin-mc -n tenant-certmanager
 
-		echo "removing the admin-mc pod"
-	  try kubectl delete pod admin-mc -n tenant-certmanager
+    echo "removing the admin-mc pod"
+    try kubectl delete pod admin-mc -n tenant-certmanager
 
   else
+    echo "Wait to mc admin info minio/"
     try kubectl run --restart=Never admin-mc --image quay.io/minio/mc \
       --env="MC_HOST_minio=https://${USER}:${PASSWORD}@minio.${1}.svc.cluster.local" \
       --command -- bash -c "until (mc admin info minio/ ); do echo 'waiting... for 5secs' && sleep 5; done"
-    sleep 10
-    echo "Wait to mc admin info minio/"
     try kubectl wait --for=jsonpath="{.status.phase}=Succeeded" --timeout=10m pod/admin-mc --namespace default
 
     # Retrieve the logs
     kubectl logs admin-mc
-
-		echo "removing the admin-mc pod"
-		try kubectl delete pod admin-mc
+    echo "removing the admin-mc pod"
+    try kubectl delete pod admin-mc
 
   fi
 

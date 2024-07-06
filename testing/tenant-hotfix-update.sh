@@ -47,7 +47,7 @@ function announce_test() {
     hotfix_version_text=$hotfix_version;
   else 
     echo "missing lower version"
-		exit 1
+    exit 1
   fi
 
   echo "## Testing upgrade of Tenant from version $lower_text to $hotfix_version_text ##"
@@ -95,16 +95,18 @@ function download_dummy_data() {
 }
 
 function install_tenant_with_image() {
-	minio_image="$1"
-	if [ -z "$1" ]
-	then
-		echo "MinIO version is not set"
-		exit 1
-	fi
-	kustomize build "${SCRIPT_DIR}/../examples/kustomization/tenant-lite" > tenant-lite.yaml
-	yq -i e "select(.kind == \"Tenant\").spec.image = \"${minio_image}\"" tenant-lite.yaml
+  minio_image="$1"
+  echo "Update MinIO Tenant with image $minio_image"
 
-	try kubectl apply -f tenant-lite.yaml
+  if [ -z "$1" ]
+  then
+    echo "MinIO version is not set"
+    exit 1
+  fi
+  kustomize build "${SCRIPT_DIR}/../examples/kustomization/tenant-lite" > tenant-lite.yaml
+  yq -i e "select(.kind == \"Tenant\").spec.image = \"${minio_image}\"" tenant-lite.yaml
+
+  try kubectl apply -f tenant-lite.yaml
 }
 
 function main() {
@@ -115,8 +117,6 @@ function main() {
   setup_kind
 
   install_operator
-
-  echo "Installing tenant with Image: $lower_version"
 
   install_tenant_with_image "$lower_version"
 
